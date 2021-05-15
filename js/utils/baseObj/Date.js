@@ -1,4 +1,36 @@
 
+/**
+ * 将日期转成指定格式字符串
+ * @param dateTime  时间毫秒数
+ * @param fmt       返回的日期格式 默认 yyyy-mm-dd hh:MM:ss
+ * @returns 转换后的日期字符串
+ */
+ DateCommon.dateFormatStr = function(dateTime, fmt) {
+    fmt = typeof fmt == "undefined" || fmt == null || fmt == "" ? "yyyy-MM-dd hh:mm:ss" : fmt;
+    if (dateTime == null || dateTime == undefined) {
+        return '';
+    }
+    let date = new Date(dateTime);
+    let o = {
+        "M+": date.getMonth() + 1, //月份
+        "d+": date.getDate(),      //日
+        "h+": date.getHours(),     //小时
+        "m+": date.getMinutes(),   //分
+        "s+": date.getSeconds(),   //秒
+        "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+        "S": date.getMilliseconds()                  //毫秒
+    };
+    if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+    }
+    for (let k in o) {
+        if (new RegExp("(" + k + ")").test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        }
+    }
+    return fmt;
+}
+
 /** 对Date的扩展，将 Date 转化为指定格式的String 
  * 月(M)、日(d)、12小时(h)、24小时(H)、分(m)、秒(s)、周(E)、季度(q) 可以用 1-2 个占位符 
  * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字) 

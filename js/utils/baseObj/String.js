@@ -132,3 +132,27 @@ String.prototype.replaceWith = function (start, length, replaceString) {
     }
     return [prefixStr, replaceString, afterStr].join('');
 };
+
+/**
+  * 部分浏览器不支持 replaceAll 函数
+  * e.g. CommonUtil.replaceAll('1,2,3', /,/g, '#') => 1#2#3
+  * @param a
+  * @param b 正则
+  * @param c
+  * @returns {*}
+  */
+function replaceAll (a, b, c) {
+    if (CommonUtil.isNotEmpty(a) && CommonUtil.isNotEmpty(b)) {
+        return a.replace(eval('/' + b + '/g'), c || '');
+    } else {
+        return a;
+    }
+}
+
+function equalsIgnoreCase (a, b) {
+    if ((typeof a != "undefined") && typeof b != "undefined") {
+        return a.toLowerCase() == b.toLowerCase();
+    } else {
+        return a == b;
+    }
+};
