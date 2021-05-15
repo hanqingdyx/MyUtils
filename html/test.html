@@ -1,0 +1,224 @@
+<html >
+<head>
+ <title>test page</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<script type="text/javascript" src="..\js\lib\jquery\jquery-1.10.2.min.js"></script>
+
+
+<body>
+	<div class="test"><p>hello，你好！</p></div>
+</body>
+
+<script type="text/javascript">
+	$(function(){
+		util.Tip();
+	});
+
+
+	(function(win,$){
+	var util = win.Util || {};
+	/**
+	 * 顶部提示
+	 * @class Tip
+	 * @namespace Util
+	 */
+	util.Tip = (function(){
+		function show(text, icon, _time){
+			var maskWin = function () {
+				var top = window,
+				test = function (name) {
+					try {
+						var doc = window[name].document;	// 跨域|无权限
+						doc.getElementsByTagName; 			// chrome 本地安全限制
+					} catch (e) {
+						return false;
+					};
+
+					return window[name].artDialog
+					// 框架集无法显示第三方元素
+					&& doc.getElementsByTagName('frameset').length === 0;
+				};
+
+				if (test('top')) {
+					top = window.top;
+				} else if (test('parent')) {
+					top = window.parent;
+				};
+
+				return top;
+			}();
+			var $tip = maskWin.$('<div class="util-tip"><span><i></i>' + text + '</span></div>');
+			var time = new Date().getTime();
+			var _time = _time || 4000;
+			if( maskWin.$('.util-tip:visible').length ){
+				clearTimeout(window.timeOut);
+			}
+			maskWin.$('.util-tip').stop().remove();
+			$tip.data('time', time).appendTo('body').fadeOut( _time ).find('span').addClass(icon);
+			window.timeOut = setTimeout(function(){
+				maskWin.$('.util-tip').remove();
+			}, _time-1);
+		}
+		return {
+			//成功提示
+			success: function(text, time){
+				show(text, 'success', time);
+			},
+			//警告提示
+			warning: function(text, time){
+				show(text, 'warning', time);
+			},
+			//错误提示
+			error: function(text, time){
+				show(text, 'error', time);
+			}
+		};
+	})();
+
+	/**
+	 * 请求遮罩
+	 */
+	util.mask = (function(){
+		function setMask(obj, ctn){
+			var width = obj.outerWidth(),
+				height = obj.outerHeight(),
+				position = "absolute";
+
+			//已存在遮罩
+			var $loadingMask = obj.children("div.loadingMask");
+			if($loadingMask.length > 0){
+				$loadingMask.data("num", $loadingMask.data("num") + 1);
+				return this;
+			}
+
+			//不存在遮罩
+			var maskStr = [
+				'<div class="loadingMask" style="background-color: #333;opacity: 0.3">',
+				'	<div class="mask"></div>',
+				'	<div class="ctn">',
+				'		<div><i></i><em>' + ctn + '</em></div>',
+				'	</div>',
+				'</div>'
+			].join('');
+			$loadingMask = $(maskStr).appendTo(obj.addClass("hasMask")).data("num", 1);
+			var $loading = $loadingMask.find(".ctn");
+
+			if (obj.is('body')) {
+				width = "100%";
+				height = "100%";
+				if(!(/msie 6/i.test(navigator.userAgent))){
+					position = "fixed";
+				}
+			}
+			$loadingMask.css({
+				position: position,
+				width: width,
+				height: height
+			});
+			$loading.css({
+				position: position
+			});
+			$loading.css({
+				marginLeft: 0-$loading.width()/2,
+				marginTop: 0-$loading.height()/2
+			});
+		}
+
+		function clearMask(obj){
+			var $loadingMask = obj.children(".loadingMask");
+			var num = $loadingMask.data("num");
+			if (num == undefined || num <= 1) {
+				obj.removeClass("hasMask");
+				$loadingMask.remove();
+			} else {
+				$loadingMask.data("num", num - 1);
+			}
+		}
+
+		return {
+			/**
+			 * 设置遮罩
+			 * @param Object opt 遮罩配置项
+			 */
+			set: function(opt){
+				var opt = opt && (typeof opt === "object")? opt : {
+						dom: $('body'),
+						ctn: "正在加载…"
+					},
+					$this = opt.dom || $('body'),
+					ctn = opt.ctn || "正在加载…";
+				setMask($this, ctn);
+			},
+			/**
+			 * 清除遮罩
+			 * @param Obj 删除制定Dom对象的遮罩
+			 */
+			clear: function(dom){
+				var $this = (typeof dom === "object") ? dom : $('body');
+				clearMask($this);
+			}
+		}
+	})();
+
+
+	/**
+	 * 数据加载
+	 * 直接调用jquery的ajax请求
+	 * @class Ajax
+	 * @namespace Util
+	 */
+	util.Ajax = {
+		baseSet:{
+			beforeSend :function(){
+				Util.mask.set();
+			},
+			complete : function(){
+				Util.mask.clear();
+			},
+			error : function(){
+				Util.Tip.warning(Message.get('LOAD_ERROR'));
+			}
+		},
+		//POST发送数据
+		post: function (url, data, callback, type) {
+			var opt = $.extend(this.baseSet, {
+				type: 'POST',
+				dataType: type || 'json',
+				url: CONTEXTPATH + url,
+				data: data,
+				success: function(data, textStatus, jqXHR){
+					if( data.returnFlag != undefined && data.returnFlag == false ){
+						Util.Tip.warning(Message.get(data.data||'LOAD_ERROR'));
+						return ;
+					}
+					callback && callback(data);
+				}
+			});
+
+			$.ajax(opt);
+		},
+
+		//GET请求数据
+		get: function (url, data, callback, type) {
+			var opt = $.extend(this.baseSet, {
+				type:'GET',
+				dataType:type || 'json',
+				url: CONTEXTPATH + url,
+				data: data,
+				success: function(data, textStatus, jqXHR){
+					if( data.returnFlag != undefined && data.returnFlag == false ){
+						Util.Tip.warning(Message.get( data.data || 'LOAD_ERROR' ));
+						return ;
+					}
+					callback && callback(data);
+				}
+			});
+
+			$.ajax(opt);
+		}
+	};
+	win.Util = util;
+})(window,jQuery);
+
+</script>

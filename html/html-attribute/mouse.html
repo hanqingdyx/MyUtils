@@ -1,0 +1,27 @@
+<!-- 鼠标属性 -->
+<html >
+<head>
+ <title>test page</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<script type="text/javascript" src="..\..\js\lib\jquery\jquery-1.10.2.min.js"></script>
+<style type="text/css">
+
+</style>
+<body>
+	<div oncontextmenu="return false;" >oncontextmenu="return false;" //禁止鼠标右键，兼容主流浏览器  </div>
+	<div onselectstart="return false;">onselectstart="return false;"//禁止选中文字 </div>
+	<div ondragstart="return false;">ondragstart="return false;" //禁止鼠标拖动 </div>
+</body>
+
+<script type="text/javascript">
+	$(function(){
+
+	});
+</script>
+
+<!-- 
+oncontextmenu="return false;" //禁止鼠标右键，兼容主流浏览器 
+ondragstart="return false;" //禁止鼠标拖动，仅适用于IE 
+onselectstart="return false;"//禁止选中文字，仅适用于IE 
+-->

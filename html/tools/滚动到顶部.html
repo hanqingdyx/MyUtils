@@ -1,0 +1,64 @@
+<html >
+<head>
+ <title>test page</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<script type="text/javascript" src="..\..\js\lib\jquery\jquery-1.10.2.min.js"></script>
+<style type="text/css">
+.return-top{
+	background:url(../../images/demo/arrow.png) no-repeat center 12px;
+	margin-bottom: 5px;
+	display: block;
+	background-color: #fff;
+	border: 1px solid #d7d7d7;
+	width: 62px;
+	height: 38px;
+	line-height: 38px;
+	text-align: center;
+	color: #6c6c6c;
+	font-size: 14px;	
+	cursor: pointer;
+	z-index: 999;
+}
+.return-top:hover{
+	background: #5d5d5c;
+    border-color: #5d5d5c;
+    color: #fff;
+	background: url(../../images/demo/arrow.png) no-repeat center -23px #5d5d5c;
+}
+</style>
+<body>
+	<div style="width:100px;height:1500px;background-color:gray;">点击按钮滚动到顶部</div>
+	<!-- 上移到顶部 -->
+	<a href="javascript:;" class="return-top">滚到顶部</a>
+</body>
+</html>
+
+<script type="text/javascript">
+	$(function(){
+		$('.return-top').click(function(){
+		    $('html,body').animate({scrollTop:0}, 'slow');
+		    return false;
+		});
+	});
+</script>
+
+<!-- 
+实现功能：点击按钮滚动到顶部
+方法一：
+<a href="javascript:;" class="return-top"></a>
+$('.return-top').click(function(){
+    $('html,body').animate({scrollTop:0}, 'slow');
+    return false;
+});
+
+方法二：
+浏览器从底部滚动到顶部
+html：
+<a class="top" href="#">Back to top</a>
+js：
+$('a.top').click(function () {
+	$(document.body).animate({scrollTop: 0}, 800, function(){});
+	return false;
+});
+-->
